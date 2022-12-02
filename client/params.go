@@ -1,6 +1,6 @@
 package client
 
-// GetUpdateParams parameters for getUpdates method
+// GetUpdateParams parameters for TgClient.GetUpdates method
 type GetUpdateParams struct {
 	Offset         int      `json:"offset,omitempty"`
 	Limit          int      `json:"limit,omitempty"`
@@ -8,15 +8,18 @@ type GetUpdateParams struct {
 	AllowedUpdates []string `json:"allowed_updates,omitempty"`
 }
 
+// SendMessageParams parameters for TgClient.SendMessage method
 type SendMessageParams struct {
 	ChatId int    `json:"chat_id"`
 	Text   string `json:"text"`
 }
 
-type GetFileParams struct {
+// getFileParams parameters for TgClient.GetFile method
+type getFileParams struct {
 	FileId string `json:"file_id"`
 }
 
+// SetMyCommandsParams parameters for SetMyCommands method
 type SetMyCommandsParams struct {
 	Commands     []BotCommand `json:"commands"`
 	LanguageCode string       `json:"language_code,omitempty"`

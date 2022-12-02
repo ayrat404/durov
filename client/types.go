@@ -48,8 +48,8 @@ type Update struct {
 
 type Message struct {
 	MessageId int             `json:"message_id"`
-	From      *User           `json:"from,omitempty"`
-	Chat      *Chat           `json:"chat"`
+	From      User            `json:"from,omitempty"`
+	Chat      Chat            `json:"chat"`
 	Date      int             `json:"date"`
 	Text      string          `json:"text,omitempty"`
 	Document  *Document       `json:"document,omitempty"`
