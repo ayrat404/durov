@@ -8,18 +8,30 @@ import (
 )
 
 type TgBot struct {
-	client *client.TgClient
+	client  *client.TgClient
+	params  BotParams
+	handler Handler
+	router  *commandRouter
 }
 
-func NewBot(token string) *TgBot {
-	client := client.NewClient(token)
+func NewBot(token string, params BotParams) *TgBot {
+	tgClient := client.NewClient(token)
+	router := newRouter(params.commands)
 	return &TgBot{
-		client: client,
+		client:  tgClient,
+		params:  params,
+		handler: compose(params.middlewares, router.Handle),
+		router:  router,
 	}
 }
 
 func (t *TgBot) Run(ctx context.Context) error {
 	if _, err := t.client.GetMe(); err != nil {
+		return err
+	}
+
+	err := t.setCommands()
+	if err != nil {
 		return err
 	}
 
@@ -32,15 +44,57 @@ func (t *TgBot) Run(ctx context.Context) error {
 			updates, err := t.client.GetUpdates(&client.GetUpdateParams{Timeout: 20, Offset: offset})
 			if err != nil {
 				log.Printf("[ERROR] error getting updates: %s", err)
-				time.Sleep(time.Second * 5) // TODO take timeout from config
+				timeoutCtx, cancel := context.WithTimeout(ctx, time.Second*5)
+				<-timeoutCtx.Done()
+				cancel()
 				continue
 			}
 			if len(updates) > 0 {
 				offset = updates[len(updates)-1].UpdateId + 1
 				for _, update := range updates {
 					log.Printf("[DEBUG] received message from @%v: %v", update.Message.From.Username, update.Message.Text)
+					t.process(&update)
 				}
 			}
 		}
 	}
+}
+
+func (t *TgBot) process(update *client.Update) {
+	request := &Request{
+		TgClient: t.client,
+		Text:     update.Message.Text,
+		ChatId:   update.Message.Chat.Id,
+		UserInfo: UserInfo{
+			LastName:  update.Message.From.LastName,
+			UserName:  update.Message.From.Username,
+			FirstName: update.Message.From.FirstName,
+		},
+		Update: update,
+	}
+	t.handler(request)
+}
+
+func (t *TgBot) setCommands() error {
+	params := createParams(t)
+	_, err := t.client.SetMyCommands(params)
+	return err
+}
+
+func createParams(t *TgBot) *client.SetMyCommandsParams {
+	setMyCommandsParams := &client.SetMyCommandsParams{
+		Commands: make([]client.BotCommand, 0, len(t.params.commands)),
+	}
+	for _, botCommand := range t.params.commands {
+		commandDef := botCommand.GetDefinition()
+		if !commandDef.Display {
+			continue
+		}
+		commandParams := client.BotCommand{
+			Command:     commandDef.Name,
+			Description: commandDef.Description,
+		}
+		setMyCommandsParams.Commands = append(setMyCommandsParams.Commands, commandParams)
+	}
+	return setMyCommandsParams
 }
