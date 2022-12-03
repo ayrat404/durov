@@ -10,8 +10,19 @@ type GetUpdateParams struct {
 
 // SendMessageParams parameters for TgClient.SendMessage method
 type SendMessageParams struct {
-	ChatId int    `json:"chat_id"`
-	Text   string `json:"text"`
+	ChatId      int    `json:"chat_id"`
+	Text        string `json:"text"`
+	ReplyMarkup any    `json:"reply_markup,omitempty"` // only InlineKeyboardMarkup is supported for now
+}
+
+type InlineKeyboardMarkup struct {
+	InlineKeyboard []InlineKeyboardButton `json:"inline_keyboard"`
+}
+
+type InlineKeyboardButton struct {
+	Text         string `json:"text"`
+	Url          string `json:"url,omitempty"`
+	CallbackData string `json:"callback_data,omitempty"`
 }
 
 // getFileParams parameters for TgClient.GetFile method
