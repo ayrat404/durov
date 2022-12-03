@@ -61,7 +61,7 @@ func (t *TgBot) Run(ctx context.Context) error {
 }
 
 func (t *TgBot) process(update *client.Update) {
-	request := &Request{
+	request := &RequestContext{
 		TgClient: t.client,
 		Text:     update.Message.Text,
 		ChatId:   update.Message.Chat.Id,

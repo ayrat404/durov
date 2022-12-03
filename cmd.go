@@ -8,8 +8,8 @@ type CommandDefinition struct {
 
 type BotCommand interface {
 	GetDefinition() CommandDefinition
-	CanExecute(req *Request) bool
-	Execute(req *Request)
+	CanExecute(*RequestContext) bool
+	Execute(*RequestContext)
 }
 
 type commandRouter struct {
@@ -22,6 +22,6 @@ func newRouter(commands []BotCommand) *commandRouter {
 	}
 }
 
-func (c *commandRouter) Handle(req *Request) {
+func (c *commandRouter) Handle(ctx *RequestContext) {
 
 }

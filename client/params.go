@@ -19,7 +19,7 @@ type getFileParams struct {
 	FileId string `json:"file_id"`
 }
 
-// SetMyCommandsParams parameters for SetMyCommands method
+// SetMyCommandsParams parameters for TgClient.SetMyCommands method
 type SetMyCommandsParams struct {
 	Commands     []BotCommand `json:"commands"`
 	LanguageCode string       `json:"language_code,omitempty"`
