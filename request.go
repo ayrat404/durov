@@ -16,6 +16,7 @@ type RequestContext struct {
 	TgClient       *client.TgClient
 	UserInfo       UserInfo
 	InlineButtonId string
+	Commands       []BotCommand
 }
 
 // UserInfo contains user info
@@ -30,7 +31,7 @@ type InlineButton struct {
 	Title string
 }
 
-func newRequestContext(update *client.Update, tgClient *client.TgClient) *RequestContext {
+func NewRequestContext(update *client.Update, tgClient *client.TgClient, commands []BotCommand) *RequestContext {
 	request := &RequestContext{
 		TgClient: tgClient,
 		Text:     update.Message.Text,
@@ -40,7 +41,8 @@ func newRequestContext(update *client.Update, tgClient *client.TgClient) *Reques
 			UserName:  update.Message.From.Username,
 			FirstName: update.Message.From.FirstName,
 		},
-		Update: update,
+		Update:   update,
+		Commands: commands,
 	}
 
 	request.Command = extractCommandName(update)
@@ -48,9 +50,9 @@ func newRequestContext(update *client.Update, tgClient *client.TgClient) *Reques
 	if update.Message.CallbackQuery != nil {
 		request.CallbackData = update.Message.CallbackQuery.Data
 		if request.Command == "" {
-			cmdName, btbId := extractInlineButtonData(request)
+			cmdName, btnId := extractInlineButtonData(request)
 			request.Command = cmdName
-			request.InlineButtonId = btbId
+			request.InlineButtonId = btnId
 		}
 	}
 
@@ -70,14 +72,14 @@ func extractCommandName(update *client.Update) string {
 		if len(text) < msgEntity.Offset+msgEntity.Length {
 			return ""
 		}
-		return text[msgEntity.Offset : msgEntity.Length-1]
+		return text[msgEntity.Offset : msgEntity.Offset+msgEntity.Length]
 	}
 	return ""
 }
 
 func extractInlineButtonData(request *RequestContext) (string, string) {
 	query, err := url.ParseQuery(request.CallbackData)
-	if err == nil {
+	if err != nil {
 		return "", ""
 	}
 	return query.Get("c"), query.Get("id")

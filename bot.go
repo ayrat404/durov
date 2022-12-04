@@ -8,20 +8,24 @@ import (
 )
 
 type TgBot struct {
-	client  *client.TgClient
-	params  BotParams
-	handler Handler
-	router  *commandRouter
+	client      *client.TgClient
+	params      BotParams
+	handler     Handler
+	cmdExecutor *CommandExecutor
 }
 
 func NewBot(token string, params BotParams) *TgBot {
 	tgClient := client.NewClient(token)
-	router := newRouter(params.commands, params.fallbackCommand)
+	executor := newCommandExecutor(params.commands, params.fallbackCommand)
+	cmdExecutor := executor.Execute
+	if params.customCmdExecutor != nil {
+		cmdExecutor = params.customCmdExecutor
+	}
 	return &TgBot{
-		client:  tgClient,
-		params:  params,
-		handler: composeHandlers(params.middlewares, router.Handle),
-		router:  router,
+		client:      tgClient,
+		params:      params,
+		handler:     composeHandlers(params.middlewares, cmdExecutor),
+		cmdExecutor: executor,
 	}
 }
 
@@ -61,7 +65,7 @@ func (t *TgBot) Run(ctx context.Context) error {
 }
 
 func (t *TgBot) process(update *client.Update) {
-	request := newRequestContext(update, t.client)
+	request := NewRequestContext(update, t.client, t.params.commands)
 	t.handler(request)
 }
 
