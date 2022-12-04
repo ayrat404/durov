@@ -16,11 +16,11 @@ type TgBot struct {
 
 func NewBot(token string, params BotParams) *TgBot {
 	tgClient := client.NewClient(token)
-	router := newRouter(params.commands)
+	router := newRouter(params.commands, params.fallbackCommand)
 	return &TgBot{
 		client:  tgClient,
 		params:  params,
-		handler: compose(params.middlewares, router.Handle),
+		handler: composeHandlers(params.middlewares, router.Handle),
 		router:  router,
 	}
 }
@@ -61,31 +61,21 @@ func (t *TgBot) Run(ctx context.Context) error {
 }
 
 func (t *TgBot) process(update *client.Update) {
-	request := &RequestContext{
-		TgClient: t.client,
-		Text:     update.Message.Text,
-		ChatId:   update.Message.Chat.Id,
-		UserInfo: UserInfo{
-			LastName:  update.Message.From.LastName,
-			UserName:  update.Message.From.Username,
-			FirstName: update.Message.From.FirstName,
-		},
-		Update: update,
-	}
+	request := newRequestContext(update, t.client)
 	t.handler(request)
 }
 
 func (t *TgBot) setCommands() error {
-	params := createParams(t)
+	params := createSetCommandsParams(t.params.commands)
 	_, err := t.client.SetMyCommands(params)
 	return err
 }
 
-func createParams(t *TgBot) *client.SetMyCommandsParams {
+func createSetCommandsParams(commands []BotCommand) *client.SetMyCommandsParams {
 	setMyCommandsParams := &client.SetMyCommandsParams{
-		Commands: make([]client.BotCommand, 0, len(t.params.commands)),
+		Commands: make([]client.BotCommand, 0, len(commands)),
 	}
-	for _, botCommand := range t.params.commands {
+	for _, botCommand := range commands {
 		commandDef := botCommand.GetDefinition()
 		if !commandDef.Display {
 			continue

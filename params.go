@@ -20,7 +20,7 @@ func (b BotParams) AddFallbackCmd(command BotCommand) {
 	b.fallbackCommand = command
 }
 
-func compose(middlewares []func(Handler) Handler, last Handler) Handler {
+func composeHandlers(middlewares []func(Handler) Handler, last Handler) Handler {
 	if len(middlewares) == 0 {
 		return last
 	}

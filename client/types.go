@@ -46,16 +46,27 @@ type Update struct {
 	Message  *Message `json:"message,omitempty"`
 }
 
+type CallbackQuery struct {
+	Id              string   `json:"id"`
+	From            User     `json:"from"`
+	Message         *Message `json:"message,omitempty"`
+	InlineMessageId string   `json:"inline_message_id,omitempty"`
+	ChatInstance    string   `json:"chatInstance,omitempty"`
+	Data            string   `json:"data,omitempty"`
+	GameShortName   string   `json:"game_short_name,omitempty"`
+}
+
 type Message struct {
-	MessageId int             `json:"message_id"`
-	From      User            `json:"from,omitempty"`
-	Chat      Chat            `json:"chat"`
-	Date      int             `json:"date"`
-	Text      string          `json:"text,omitempty"`
-	Document  *Document       `json:"document,omitempty"`
-	Caption   string          `json:"caption,omitempty"`
-	Photo     []PhotoSize     `json:"photo,omitempty"`
-	Entities  []MessageEntity `json:"entities,omitempty"`
+	MessageId     int             `json:"message_id"`
+	From          User            `json:"from,omitempty"`
+	Chat          Chat            `json:"chat"`
+	Date          int             `json:"date"`
+	Text          string          `json:"text,omitempty"`
+	Document      *Document       `json:"document,omitempty"`
+	Caption       string          `json:"caption,omitempty"`
+	Photo         []PhotoSize     `json:"photo,omitempty"`
+	Entities      []MessageEntity `json:"entities,omitempty"`
+	CallbackQuery *CallbackQuery  `json:"callback_query,omitempty"`
 }
 
 type Chat struct {
