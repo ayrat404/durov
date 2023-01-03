@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,7 +22,7 @@ func NewClient(token string) *TgClient {
 	return &TgClient{token, &http.Client{}}
 }
 
-func makeRequest[Req any, Resp any](t *TgClient, method string, params *Req) (response *Resp, err error) {
+func makeRequest[Req any, Resp any](t *TgClient, ctx context.Context, method string, params *Req) (response *Resp, err error) {
 	var bodyReader io.Reader
 	if params != nil {
 		bodyJson, err := json.Marshal(params)
@@ -31,7 +32,13 @@ func makeRequest[Req any, Resp any](t *TgClient, method string, params *Req) (re
 		bodyReader = bytes.NewReader(bodyJson)
 	}
 
-	rawResp, err := t.client.Post(formatUrl(t.token, method), "application/json", bodyReader)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, formatUrl(t.token, method), bodyReader)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rawResp, err := t.client.Do(req)
 	if err != nil {
 		return nil, err
 	}

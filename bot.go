@@ -3,6 +3,7 @@ package durov
 import (
 	"context"
 	"github.com/ayrat404/durov/client"
+	"github.com/pkg/errors"
 	"log"
 	"time"
 )
@@ -30,14 +31,16 @@ func NewBot(token string, params BotParams) *TgBot {
 }
 
 func (t *TgBot) Run(ctx context.Context) error {
-	if _, err := t.client.GetMe(); err != nil {
-		return err
+	if _, err := t.client.GetMe(ctx); err != nil {
+		return errors.Wrap(err, "failed to call GetMe")
 	}
 
 	err := t.setCommands()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to call set commands")
 	}
+
+	log.Printf("start getting telegram updates")
 
 	offset := 0
 	for {
@@ -45,7 +48,7 @@ func (t *TgBot) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-			updates, err := t.client.GetUpdates(&client.GetUpdateParams{Timeout: 20, Offset: offset})
+			updates, err := t.client.GetUpdates(ctx, &client.GetUpdateParams{Timeout: 20, Offset: offset})
 			if err != nil {
 				log.Printf("[ERROR] error getting updates: %s", err)
 				timeoutCtx, cancel := context.WithTimeout(ctx, time.Second*5)
@@ -56,7 +59,6 @@ func (t *TgBot) Run(ctx context.Context) error {
 			if len(updates) > 0 {
 				offset = updates[len(updates)-1].UpdateId + 1
 				for _, update := range updates {
-					log.Printf("[DEBUG] received message from @%v: %v", update.Message.From.Username, update.Message.Text)
 					t.process(&update)
 				}
 			}

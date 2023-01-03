@@ -9,19 +9,19 @@ type BotParams struct {
 
 type Handler func(*RequestContext)
 
-func (b BotParams) Use(middlewares ...func(Handler) Handler) {
+func (b *BotParams) Use(middlewares ...func(Handler) Handler) {
 	b.middlewares = append(b.middlewares, middlewares...)
 }
 
-func (b BotParams) UseCmdExecutor(cmdExecutor Handler) {
+func (b *BotParams) UseCmdExecutor(cmdExecutor Handler) {
 	b.customCmdExecutor = cmdExecutor
 }
 
-func (b BotParams) AddCmd(commands ...BotCommand) {
+func (b *BotParams) AddCmd(commands ...BotCommand) {
 	b.commands = append(b.commands, commands...)
 }
 
-func (b BotParams) AddFallbackCmd(command BotCommand) {
+func (b *BotParams) AddFallbackCmd(command BotCommand) {
 	b.fallbackCommand = command
 }
 

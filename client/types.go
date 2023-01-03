@@ -20,7 +20,7 @@ type TgError struct {
 }
 
 func (t *TgError) Error() string {
-	return t.Description
+	return fmt.Sprintf("%v (%s)", t.ErrorCode, t.Description)
 }
 
 func (t *TgError) String() string {

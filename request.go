@@ -27,7 +27,7 @@ type UserInfo struct {
 }
 
 type InlineButton struct {
-	Id    string
+	Name  string
 	Title string
 }
 
@@ -106,7 +106,7 @@ func createMsgParams(r *RequestContext, msg string, inlineButtons []InlineButton
 		for i, button := range inlineButtons {
 			markup.InlineKeyboard[i] = client.InlineKeyboardButton{
 				Text:         button.Title,
-				CallbackData: "c=" + commandName + "id=" + button.Id,
+				CallbackData: "c=" + commandName + "n=" + button.Name,
 			}
 		}
 		params.ReplyMarkup = markup
