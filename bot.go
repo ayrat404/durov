@@ -69,6 +69,9 @@ func (t *TgBot) Run(ctx context.Context) error {
 func (t *TgBot) process(update *client.Update) {
 	request := NewRequestContext(update, t.client, t.params.commands)
 	t.handler(request)
+	if update.CallbackQuery != nil {
+		t.client.AnswerCallbackQuery(&client.AnswerCallbackQueryParams{CallbackQueryId: update.CallbackQuery.Id})
+	}
 }
 
 func (t *TgBot) setCommands() error {

@@ -13,7 +13,6 @@ func TestNewRequestContext(t *testing.T) {
 
 	assert.NotNil(t, req)
 	assert.NotNil(t, req.TgClient)
-	assert.NotNil(t, req.Commands)
 	assert.NotNil(t, req.Update)
 
 	assert.Equal(t, "text /command1", req.Text)
@@ -26,7 +25,6 @@ func TestNewRequestContext(t *testing.T) {
 
 	assert.Equal(t, "/command1", req.Command)
 	assert.Equal(t, "c=/command2&id=321", req.CallbackData)
-	assert.Empty(t, req.InlineButtonId)
 }
 
 func TestNewRequestContextCommandFromCallbackQuery(t *testing.T) {
@@ -36,7 +34,6 @@ func TestNewRequestContextCommandFromCallbackQuery(t *testing.T) {
 	req := NewRequestContext(update, &client.TgClient{}, []BotCommand{})
 
 	assert.Equal(t, "/command2", req.Command)
-	assert.Equal(t, "321", req.InlineButtonId)
 }
 
 func buildUpdate() *client.Update {
@@ -44,9 +41,6 @@ func buildUpdate() *client.Update {
 		UpdateId: 123,
 		Message: &client.Message{
 			Text: "text /command1",
-			CallbackQuery: &client.CallbackQuery{
-				Data: "c=/command2&id=321",
-			},
 			Chat: client.Chat{
 				Id: 123,
 			},
@@ -65,6 +59,9 @@ func buildUpdate() *client.Update {
 					Offset: 5,
 				},
 			},
+		},
+		CallbackQuery: &client.CallbackQuery{
+			Data: "c=/command2&id=321",
 		},
 	}
 }

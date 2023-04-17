@@ -52,3 +52,16 @@ func (t *TgClient) DownloadFile(fileId string) (*DownloadedFile, error) {
 
 	return &DownloadedFile{content, path.Base(file.FilePath)}, nil
 }
+
+type AnswerCallbackQueryParams struct {
+	CallbackQueryId string `json:"callback_query_id"`
+	Text            string `json:"text,omitempty"`
+	ShowAlert       bool   `json:"show_alert,omitempty"`
+	Url             string `json:"url,omitempty"`
+	CacheTime       string `json:"cache_time,omitempty"`
+}
+
+func (t *TgClient) AnswerCallbackQuery(params *AnswerCallbackQueryParams) (bool, error) {
+	result, err := makeRequest[AnswerCallbackQueryParams, bool](t, context.Background(), "answerCallbackQuery", params)
+	return *result, err
+}

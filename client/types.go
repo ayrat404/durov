@@ -42,8 +42,9 @@ type User struct {
 }
 
 type Update struct {
-	UpdateId int      `json:"update_id"`
-	Message  *Message `json:"message,omitempty"`
+	UpdateId      int            `json:"update_id"`
+	Message       *Message       `json:"message,omitempty"`
+	CallbackQuery *CallbackQuery `json:"callback_query,omitempty"`
 }
 
 type CallbackQuery struct {
@@ -57,16 +58,15 @@ type CallbackQuery struct {
 }
 
 type Message struct {
-	MessageId     int             `json:"message_id"`
-	From          User            `json:"from,omitempty"`
-	Chat          Chat            `json:"chat"`
-	Date          int             `json:"date"`
-	Text          string          `json:"text,omitempty"`
-	Document      *Document       `json:"document,omitempty"`
-	Caption       string          `json:"caption,omitempty"`
-	Photo         []PhotoSize     `json:"photo,omitempty"`
-	Entities      []MessageEntity `json:"entities,omitempty"`
-	CallbackQuery *CallbackQuery  `json:"callback_query,omitempty"`
+	MessageId int             `json:"message_id"`
+	From      User            `json:"from,omitempty"`
+	Chat      Chat            `json:"chat"`
+	Date      int             `json:"date"`
+	Text      string          `json:"text,omitempty"`
+	Document  *Document       `json:"document,omitempty"`
+	Caption   string          `json:"caption,omitempty"`
+	Photo     []PhotoSize     `json:"photo,omitempty"`
+	Entities  []MessageEntity `json:"entities,omitempty"`
 }
 
 type Chat struct {
