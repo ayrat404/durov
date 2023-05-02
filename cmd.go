@@ -8,7 +8,6 @@ type CommandDefinition struct {
 
 type BotCommand interface {
 	GetDefinition() CommandDefinition
-	CanExecute(*RequestContext) bool
 	Execute(*RequestContext)
 }
 
@@ -41,11 +40,6 @@ func (c *CommandExecutor) selectCommand(request *RequestContext) BotCommand {
 	if request.Command != "" {
 		cmd, ok := c.cmdMap[request.Command]
 		if ok {
-			return cmd
-		}
-	}
-	for _, cmd := range c.commands {
-		if cmd.CanExecute(request) {
 			return cmd
 		}
 	}
